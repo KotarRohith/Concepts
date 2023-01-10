@@ -1,0 +1,4 @@
+print(format(sum/len, '.2f'))
+print("{:.2f}".format(avgg))'
+formatted_average = format(average, '0.2f')
+print(formatted_average)
