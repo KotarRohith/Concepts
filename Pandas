@@ -1,0 +1,6 @@
+1)a=cdf.groupby(cdf['description']).agg(count=('tag','count'))
+2)wdf_new = (wdf.assign(dt = wdf['date'].dt.date).assign(hr = wdf['date'].dt.hour))[["dt", "hr", "tmp_meas"]]
+3) Retrieving all columns that are not duplicates
+wdf_new = wdf_new[~wdf_new.duplicated(["dt", "hr"])]
+wdf_new
+4)
