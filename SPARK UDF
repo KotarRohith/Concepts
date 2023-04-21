@@ -1,0 +1,92 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import when
+
+# Create SparkSession
+spark = SparkSession.builder.appName("StudentData").getOrCreate()
+
+# Sample student data
+data = [("543", "John Smith", "301-304-4044", "3.3"),
+        ("325", "Nancy Thomas", "240-340-3444", "3.95"),
+        ("567", "Alice Brown", "202-345-4567", "2.7"),
+        ("789", "Bob Johnson", "703-987-6543", "3.1"),
+        ("876", "Emily Davis", "301-567-7890", "3.8"),
+        ("432", "Sam Wilson", "240-876-5432", "2.9"),
+        ("234", "Jane Lee", "703-234-5678", "3.5"),
+        ("456", "Tom Baker", "202-456-7890", "3.0"),
+        ("678", "Amy Chen", "301-890-1234", "3.7"),
+        ("890", "Jim Lee", "703-567-8901", "2.5")]
+
+# Create DataFrame from sample data
+df = spark.createDataFrame(data, ["id", "name", "phone", "gpa"])
+
+# Categorize students by grade
+df = df.withColumn("grade", 
+                   when(df["gpa"].cast("double") >= 3.6, "A")
+                   .when(df["gpa"].cast("double") >= 3.2, "B")
+                   .when(df["gpa"].cast("double") >= 2.8, "C")
+                   .otherwise("D"))
+
+# Select and order columns
+df = df.select("id", "name", "phone", "grade").orderBy("id")
+
+# Show final result
+df.show()
+
+O/P-
+
++---+------------+------------+-----+
+| id|        name|       phone|grade|
++---+------------+------------+-----+
+|234|    Jane Lee|703-234-5678|    B|
+|325|Nancy Thomas|240-340-3444|    A|
+|432|  Sam Wilson|240-876-5432|    C|
+|456|   Tom Baker|202-456-7890|    C|
+|543|  John Smith|301-304-4044|    B|
+|567| Alice Brown|202-345-4567|    D|
+|678|    Amy Chen|301-890-1234|    A|
+|789| Bob Johnson|703-987-6543|    C|
+|876| Emily Davis|301-567-7890|    A|
+|890|     Jim Lee|703-567-8901|    D|
++---+------------+------------+-----+
+
+
+from pyspark.sql import SparkSession
+spark = SparkSession \
+.builder \
+.appName("HomeWork - SparkSQL") \
+.getOrCreate()
+student_df = spark.createDataFrame([(100, "abc", "301-304-4044", 3.3),
+(101, "def", "301-344-4324", 3.6),
+(102, "ghi", "301-344-4325", 3.0),
+(103, "jkl", "301-344-4124", 4.0),
+(104, "mno", "301-343-4324", 3.2),
+(105, "pqr", "301-334-4323", 3.1),
+(106, "stu", "301-345-4322", 2.9),
+(107, "vwx", "301-344-4321", 3.95),
+(108, "yza", "301-345-4314", 3.82),
+(109, "bcd", "301-364-4124", 3.3),
+(110, "efg", "301-345-4524", 3.85),
+(111, "hij", "301-343-4623", 2.8),
+(112, "klm", "301-244-4314", 3.25),
+(113, "nop", "301-245-4241x", 3.15)], ("Student ID", "Student Name",
+"Phone Number", "GPA"))
+
+""" Function Converting GPA into corresponding Grade """
+def convertGrade(str):
+  resStr=""
+  if str >= 3.6:
+    resStr = "A"
+  elif (str < 3.6 and str >= 3.2):
+    resStr = "B"
+  elif (str >= 2.8 and str < 3.2):
+    resStr = "C"
+  return resStr
+from pyspark.sql.functions import udf, col
+
+""" Converting function to UDF """
+convertGPA_Grade_UDF = udf(lambda x: convertGrade(x))
+
+
+student_df.select("Student ID", "Student Name","Phone Number",
+convertGPA_Grade_UDF("GPA").alias("Grade") ) \
+.show(truncate=False)
